@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>总客流量趋势分析</title>
+    <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/echarts/5.3.0-rc.1/echarts.min.js"></script>
+    <style>
+        #main {
+            width: 100%;
+            height: 700px;
+            margin: 0 auto;
+            background: #2c343c;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        body {
+            background-color: #1a1a1a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+        .title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #40a9ff;
+            font-size: 28px;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .note {
+            text-align: center;
+            color: #a0a0a0;
+            font-size: 14px;
+            margin-top: 10px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">2015-2024年总客流量趋势分析</div>
+    <div id="main"></div>
+    <div class="note">数据来源：总客流量折线图.xlsx | 单位：万人次</div>
+
+    <script>
+        const chartDom = document.getElementById('main');
+        const myChart = echarts.init(chartDom, 'dark');
+        
+        // 数据
+        const years = ['2015年', '2016年', '2017年', '2018年', '2019年', '2020年', '2021年', '2022年', '2023年', '2024年'];
+        const passengerFlow = [
+            240692.81, 256833.96, 280254.75, 302595.59, 
+            330587.6, 241250.9, 283403, 235794, 
+            314089.8, 328146
+        ];
+
+        // 计算区间峰谷点
+        function getMarkPointData(start, end) {
+            let max = -Infinity, min = Infinity, maxIdx = -1, minIdx = -1;
+            for (let i = start; i <= end; i++) {
+                if (passengerFlow[i] > max) {
+                    max = passengerFlow[i];
+                    maxIdx = i;
+                }
+                if (passengerFlow[i] < min) {
+                    min = passengerFlow[i];
+                    minIdx = i;
+                }
+            }
+            return [
+                { name: '峰', value: max, xAxis: maxIdx, yAxis: max, itemStyle: { color: '#ff6b6b' } },
+                { name: '谷', value: min, xAxis: minIdx, yAxis: min, itemStyle: { color: '#4dabf7' } }
+            ];
+        }
+
+        // 初始区间
+        let dataZoomStart = 0, dataZoomEnd = years.length - 1;
+
+        function getOption(start, end) {
+            const markPointData = getMarkPointData(start, end);
+            return {
+                title: {
+                    text: '总客流量趋势 (2015-2024)',
+                    left: 'center',
+                    textStyle: { fontSize: 22, fontWeight: 'bold' },
+                    subtext: `十年总客流量：${(passengerFlow.reduce((a,b) => a+b, 0)/10000).toFixed(2)}亿人次`,
+                    subtextStyle: { fontSize: 16, color: '#95de64' }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function(params) {
+                        const data = params[0];
+                        const year = years[data.dataIndex];
+                        const value = data.value.toLocaleString();
+                        const trend = data.dataIndex > 0 ? 
+                            `较上年：${(data.value - passengerFlow[data.dataIndex-1]).toLocaleString()}` : '';
+                        return `${year}<br/>客流量：<b>${value}</b> 万人次<br/>${trend}`;
+                    },
+                    backgroundColor: 'rgba(40, 52, 82, 0.95)',
+                    borderColor: '#3471d9',
+                    textStyle: { color: '#fff' }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '10%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: years,
+                    axisLine: { lineStyle: { color: '#5c7bd9' } },
+                    axisLabel: { interval: 0, rotate: 30, fontSize: 12 },
+                    name: '年份',
+                    nameLocation: 'end',
+                    nameTextStyle: { padding: [15, 0, 0, 0], fontSize: 14 }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '客流量 (万人次)',
+                    nameTextStyle: { fontSize: 14, padding: [0, 0, 0, 40] },
+                    axisLine: { show: true, lineStyle: { color: '#5c7bd9' } },
+                    splitLine: { lineStyle: { type: 'dashed', color: 'rgba(100, 100, 100, 0.3)' } },
+                    min: 200000,
+                    max: 350000
+                },
+                series: [{
+                    name: '总客流量',
+                    type: 'line',
+                    data: passengerFlow,
+                    smooth: true,
+                    symbolSize: 8,
+                    lineStyle: {
+                        width: 4,
+                        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                            { offset: 0, color: '#36cfc9' },
+                            { offset: 1, color: '#597ef7' }
+                        ])
+                    },
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: 'rgba(54, 207, 201, 0.6)' },
+                            { offset: 1, color: 'rgba(89, 126, 247, 0.1)' }
+                        ])
+                    },
+                    markPoint: {
+                        symbol: 'pin',
+                        symbolSize: 36,
+                        data: markPointData.map(mp => {
+                            if (mp.name === '峰') {
+                                return { ...mp, symbolOffset: [0, -20], symbolRotate: 0, label: { show: true, position: 'inside', fontSize: 16, fontWeight: 'bold', color: '#fff', formatter: '{b}' } };
+                            } else {
+                                return { ...mp, symbolOffset: [0, -20], symbolRotate: 0, label: { show: true, position: 'inside', fontSize: 16, fontWeight: 'bold', color: '#fff', formatter: '{b}' } };
+                            }
+                        }),
+                        label: {
+                            show: false // 全局不显示详细数据
+                        }
+                    },
+                    label: {
+                        show: true,
+                        formatter: '{c}',
+                        position: 'top',
+                        fontSize: 12,
+                        color: '#bfbfbf'
+                    }
+                }],
+                dataZoom: [{
+                    type: 'slider',
+                    show: true,
+                    start: (start / (years.length - 1)) * 100,
+                    end: (end / (years.length - 1)) * 100,
+                    bottom: 20,
+                    height: 20,
+                    handleSize: 20,
+                    fillerColor: 'rgba(24, 144, 255, 0.4)',
+                    borderColor: '#1890ff'
+                }],
+                toolbox: {
+                    feature: {
+                        saveAsImage: { title: '保存图片' },
+                        dataView: {
+                            title: '数据视图',
+                            readOnly: true,
+                            lang: ['数据视图', '关闭', '刷新'],
+                            buttonColor: '#1890ff'
+                        }
+                    },
+                    right: 20,
+                    top: 10
+                }
+            };
+        }
+
+        // 初始渲染
+        myChart.setOption(getOption(dataZoomStart, dataZoomEnd));
+
+        // 监听滑块变化，动态更新峰谷点
+        myChart.on('dataZoom', function(params) {
+            // 获取当前滑块区间
+            const dz = params.batch ? params.batch[0] : params;
+            let startIdx = 0, endIdx = years.length - 1;
+            if (dz && dz.start != null && dz.end != null) {
+                startIdx = Math.round(dz.start / 100 * (years.length - 1));
+                endIdx = Math.round(dz.end / 100 * (years.length - 1));
+            }
+            // 防止越界
+            startIdx = Math.max(0, Math.min(startIdx, years.length - 1));
+            endIdx = Math.max(0, Math.min(endIdx, years.length - 1));
+            if (startIdx > endIdx) [startIdx, endIdx] = [endIdx, startIdx];
+            // 更新图表
+            myChart.setOption(getOption(startIdx, endIdx), true);
+        });
+
+        // 响应式调整
+        window.addEventListener('resize', function() {
+            myChart.resize();
+        });
+    </script>
+</body>
+</html>
