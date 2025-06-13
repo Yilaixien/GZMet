@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>迁入人口趋势分析 (2013-2024)</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(135deg, #1a5d1a 0%, #0d3d0d 100%);
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            background: rgba(20, 80, 20, 0.6);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 20, 0, 0.5);
+            border: 1px solid rgba(100, 255, 100, 0.1);
+        }
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(to right, #a8ff78, #78ffd6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            color: #c8e6c9;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        .chart-container {
+            background: rgba(10, 50, 10, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 20, 0, 0.5);
+            backdrop-filter: blur(5px);
+            margin-bottom: 30px;
+            border: 1px solid rgba(100, 255, 100, 0.1);
+        }
+        #chart {
+            width: 100%;
+            height: 600px;
+        }
+        .stats-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            flex: 1;
+            min-width: 200px;
+            background: rgba(20, 80, 20, 0.6);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 20, 0, 0.3);
+            border: 1px solid rgba(100, 255, 100, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(100, 255, 100, 0.2);
+        }
+        .stat-card h3 {
+            font-size: 1.1rem;
+            color: #a8ff78;
+            margin-bottom: 10px;
+        }
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #a8ff78, #78ffd6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 10px 0;
+        }
+        .stat-change {
+            font-size: 0.9rem;
+            color: #c8e6c9;
+            font-style: italic;
+        }
+        .analysis {
+            background: rgba(15, 60, 15, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 20, 0, 0.4);
+            border: 1px solid rgba(100, 255, 100, 0.1);
+        }
+        .analysis h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #a8ff78;
+            text-align: center;
+        }
+        .key-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .point {
+            background: rgba(30, 100, 30, 0.4);
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #78ffd6;
+            transition: transform 0.3s ease;
+        }
+        .point:hover {
+            transform: scale(1.02);
+            background: rgba(30, 100, 30, 0.5);
+        }
+        .point h3 {
+            font-size: 1.2rem;
+            color: #78ffd6;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .point h3:before {
+            content: "•";
+            margin-right: 10px;
+            color: #a8ff78;
+            font-size: 1.5rem;
+        }
+        .point p {
+            color: #e0f7e0;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+        .highlight {
+            background: rgba(168, 255, 120, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .trend-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        .up {
+            background-color: #78ffd6;
+        }
+        .down {
+            background-color: #ff6b6b;
+        }
+        .data-table {
+            width: 100%;
+            margin-top: 30px;
+            border-collapse: collapse;
+            background: rgba(20, 70, 20, 0.5);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .data-table th {
+            background: rgba(30, 100, 30, 0.7);
+            padding: 12px 15px;
+            text-align: center;
+            color: #a8ff78;
+            font-weight: 600;
+        }
+        .data-table td {
+            padding: 10px 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(100, 200, 100, 0.2);
+        }
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        .data-table tr:hover {
+            background: rgba(50, 120, 50, 0.3);
+        }
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #a8d8a8;
+            font-size: 0.9rem;
+            margin-top: 30px;
+        }
+        .decade-summary {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            gap: 20px;
+        }
+        .decade-card {
+            background: rgba(25, 90, 25, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            flex: 1;
+            text-align: center;
+            border: 1px solid rgba(100, 255, 100, 0.1);
+        }
+        .decade-card h3 {
+            color: #a8ff78;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        .decade-card p {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #a8ff78, #78ffd6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            #chart {
+                height: 450px;
+            }
+            .stat-card, .decade-card {
+                min-width: 100%;
+            }
+            .decade-summary {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>2013-2024年迁入人口趋势分析</h1>
+            <p class="subtitle">本图表展示了近12年来迁入人口（单位：万人）的变化趋势，特别关注了人口迁移的关键转折点</p>
+        </header>
+        
+        <div class="chart-container">
+            <div id="chart"></div>
+        </div>
+        
+        <div class="stats-container">
+            <div class="stat-card">
+                <h3>最高迁入人口</h3>
+                <div class="stat-value">26.67</div>
+                <p>2020年</p>
+                <div class="stat-change">较2019年增长26.7%</div>
+            </div>
+            <div class="stat-card">
+                <h3>最低迁入人口</h3>
+                <div class="stat-value">10.67</div>
+                <p>2014年</p>
+                <div class="stat-change">较2013年下降35.4%</div>
+            </div>
+            <div class="stat-card">
+                <h3>12年总量</h3>
+                <div class="stat-value">212.81</div>
+                <div class="stat-change">年均17.73万人</div>
+            </div>
+            <div class="stat-card">
+                <h3>2024年迁入人口</h3>
+                <div class="stat-value">16.52</div>
+                <p>较2023年下降25.1%</p>
+                <div class="stat-change">与2013年持平</div>
+            </div>
+        </div>
+        
+        <div class="analysis">
+            <h2>关键趋势分析</h2>
+            <div class="key-points">
+                <div class="point">
+                    <h3>快速增长期 (2016-2020)</h3>
+                    <p>这五年迁入人口从<span class="highlight">11.87万人</span>增长至<span class="highlight">26.67万人</span>，增幅达<span class="highlight">124.6%</span>。2017年出现爆发式增长，较2016年增加<span class="highlight">6.19万人</span>（+52.1%）。</p>
+                    <p><span class="trend-indicator up"></span>2018年继续增长至22.81万人（+26.3%）</p>
+                </div>
+                <div class="point">
+                    <h3>疫情波动期 (2020-2022)</h3>
+                    <p>2020年达到峰值后连续两年下降，2022年降至<span class="highlight">21.77万人</span>。两年累计减少<span class="highlight">4.9万人</span>（-18.4%），显示疫情对人口流动的显著影响。</p>
+                    <p><span class="trend-indicator down"></span>2021年下降2.51万人（-9.4%），2022年下降2.39万人（-9.0%）</p>
+                </div>
+                <div class="point">
+                    <h3>复苏与调整 (2023-2024)</h3>
+                    <p>2023年迁入人口小幅回升至<span class="highlight">22.05万人</span>（较2022年+1.3%），但2024年急剧下降至<span class="highlight">16.52万人</span>，降幅达<span class="highlight">25.1%</span>。</p>
+                    <p><span class="trend-indicator down"></span>2024年人口与2013年持平，为2017年以来最低水平</p>
+                </div>
+                <div class="point">
+                    <h3>长期趋势分析</h3>
+                    <p>12年间迁入人口总体增长<span class="highlight">0%</span>（2013年与2024年均为16.52万人），但年均迁入量达<span class="highlight">17.73万人</span>。2014-2023年间年均增长率为<span class="highlight">8.2%</span>。</p>
+                    <p><span class="trend-indicator up"></span>2015-2023年累计增长11.38万人（+108.7%）</p>
+                </div>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>年份</th>
+                        <th>迁入人口(万人)</th>
+                        <th>同比变化(万人)</th>
+                        <th>同比变化率</th>
+                        <th>趋势</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>2013年</td><td>16.52</td><td>-</td><td>-</td><td>基准年</td></tr>
+                    <tr><td>2014年</td><td>10.67</td><td>-5.85</td><td>-35.4%</td><td><span class="trend-indicator down"></span>大幅下降</td></tr>
+                    <tr><td>2015年</td><td>11.28</td><td>+0.61</td><td>+5.7%</td><td><span class="trend-indicator up"></span>回升</td></tr>
+                    <tr><td>2016年</td><td>11.87</td><td>+0.59</td><td>+5.2%</td><td><span class="trend-indicator up"></span>增长</td></tr>
+                    <tr><td>2017年</td><td>18.06</td><td>+6.19</td><td>+52.1%</td><td><span class="trend-indicator up"></span>爆发增长</td></tr>
+                    <tr><td>2018年</td><td>22.81</td><td>+4.75</td><td>+26.3%</td><td><span class="trend-indicator up"></span>持续增长</td></tr>
+                    <tr><td>2019年</td><td>21.05</td><td>-1.76</td><td>-7.7%</td><td><span class="trend-indicator down"></span>小幅回落</td></tr>
+                    <tr><td>2020年</td><td>26.67</td><td>+5.62</td><td>+26.7%</td><td><span class="trend-indicator up"></span>峰值</td></tr>
+                    <tr><td>2021年</td><td>24.16</td><td>-2.51</td><td>-9.4%</td><td><span class="trend-indicator down"></span>下降</td></tr>
+                    <tr><td>2022年</td><td>21.77</td><td>-2.39</td><td>-9.9%</td><td><span class="trend-indicator down"></span>持续下降</td></tr>
+                    <tr><td>2023年</td><td>22.05</td><td>+0.28</td><td>+1.3%</td><td><span class="trend-indicator up"></span>小幅回升</td></tr>
+                    <tr><td>2024年</td><td>16.52</td><td>-5.53</td><td>-25.1%</td><td><span class="trend-indicator down"></span>大幅下降</td></tr>
+                </tbody>
+            </table>
+            
+            <div class="decade-summary">
+                <div class="decade-card">
+                    <h3>前半期 (2013-2017)</h3>
+                    <p>57.4万人</p>
+                    <p>年均11.48万人</p>
+                </div>
+                <div class="decade-card">
+                    <h3>后半期 (2018-2024)</h3>
+                    <p>155.41万人</p>
+                    <p>年均22.2万人</p>
+                </div>
+                <div class="decade-card">
+                    <h3>峰值期 (2018-2023)</h3>
+                    <p>137.51万人</p>
+                    <p>年均22.92万人</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>数据来源：迁入人口数量xlsx.xlsx | 可视化分析 © 2024</p>
+            <p>注：数据单位为万人，统计周期为2013年1月1日至2024年12月31日</p>
+        </div>
+    </div>
+
+    <script>
+        // 初始化ECharts实例
+        const chartDom = document.getElementById('chart');
+        const myChart = echarts.init(chartDom);
+        
+        // 准备数据（单位：万人）
+        const years = ['2013年', '2014年', '2015年', '2016年', '2017年', '2018年', '2019年', '2020年', '2021年', '2022年', '2023年', '2024年'];
+        const migrationData = [
+            16.52, 10.67, 11.28, 11.87, 
+            18.06, 22.81, 21.05, 26.67, 
+            24.16, 21.77, 22.05, 16.52
+        ];
+        
+        // 计算同比变化（单位：万人）
+        const changes = migrationData.map((val, index) => {
+            if (index === 0) return null;
+            return (val - migrationData[index - 1]).toFixed(2);
+        });
+        
+        // 计算变化率
+        const changeRates = migrationData.map((val, index) => {
+            if (index === 0) return null;
+            const change = (val - migrationData[index - 1]);
+            return (change > 0 ? '+' : '') + (change / migrationData[index - 1] * 100).toFixed(1) + '%';
+        });
+        
+        // 计算统计值
+        const maxValue = Math.max(...migrationData);
+        const minValue = Math.min(...migrationData);
+        const totalValue = migrationData.reduce((a, b) => a + b, 0).toFixed(2);
+        const avgValue = (totalValue / migrationData.length).toFixed(2);
+        
+        // 设置图表配置项
+        const option = {
+            backgroundColor: 'transparent',
+            title: {
+                text: '迁入人口变化趋势 (2013-2024)',
+                left: 'center',
+                textStyle: {
+                    color: '#e0f7e0',
+                    fontSize: 22,
+                    fontWeight: 'normal'
+                },
+                subtext: '数据单位：万人 | 来源：迁入人口数量xlsx.xlsx',
+                subtextStyle: {
+                    color: '#a8d8a8',
+                    fontSize: 14
+                }
+            },
+            tooltip: {
+                trigger: 'axis',
+                formatter: function(params) {
+                    const data = params[0];
+                    const index = data.dataIndex;
+                    const year = years[index];
+                    const value = data.value;
+                    
+                    let changeInfo = '';
+                    if (index > 0) {
+                        const change = changes[index];
+                        const rate = changeRates[index];
+                        changeInfo = `<br>较上年: <span style="color:${change > 0 ? '#78ffd6' : '#ff6b6b'};font-weight:bold">
+                            ${change > 0 ? '+' : ''}${change}万人 (${rate})
+                        </span>`;
+                    }
+                    
+                    return `${year}<br>迁入人口: <b style="color:#a8ff78">${value}万人</b>${changeInfo}`;
+                },
+                backgroundColor: 'rgba(20, 40, 20, 0.9)',
+                borderColor: '#4CAF50',
+                textStyle: {
+                    color: '#fff',
+                    fontSize: 14
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '12%',
+                top: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: years,
+                axisLine: {
+                    lineStyle: {
+                        color: '#78ffd6'
+                    }
+                },
+                axisLabel: {
+                    color: '#c8e6c9',
+                    fontSize: 12,
+                    interval: 0,
+                    rotate: 30
+                },
+                splitLine: {
+                    show: false
+                },
+                axisTick: {
+                    alignWithLabel: true
+                }
+            },
+            yAxis: {
+                type: 'value',
+                name: '迁入人口 (万人)',
+                nameTextStyle: {
+                    color: '#a8ff78',
+                    fontSize: 14,
+                    padding: [0, 0, 0, 40]
+                },
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: '#78ffd6'
+                    }
+                },
+                axisLabel: {
+                    color: '#c8e6c9',
+                    fontSize: 12
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: 'rgba(100, 200, 100, 0.1)',
+                        type: 'dashed'
+                    }
+                },
+                min: 5,
+                max: 30
+            },
+            dataZoom: [{
+                type: 'slider',
+                show: true,
+                start: 0,
+                end: 100,
+                height: 20,
+                bottom: 30,
+                backgroundColor: 'rgba(30, 80, 30, 0.8)',
+                fillerColor: 'rgba(100, 255, 100, 0.3)',
+                borderColor: 'rgba(100, 255, 100, 0.1)',
+                handleStyle: {
+                    color: '#a8ff78',
+                    borderColor: '#4CAF50'
+                },
+                textStyle: {
+                    color: '#e0f7e0'
+                }
+            }],
+            series: [{
+                name: '迁入人口',
+                type: 'line',
+                data: migrationData,
+                symbol: 'circle',
+                symbolSize: 10,
+                lineStyle: {
+                    width: 4,
+                    color: '#a8ff78'
+                },
+                itemStyle: {
+                    color: '#a8ff78',
+                    borderWidth: 2,
+                    borderColor: '#0d3d0d'
+                },
+                areaStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                        offset: 0,
+                        color: 'rgba(168, 255, 120, 0.4)'
+                    }, {
+                        offset: 1,
+                        color: 'rgba(168, 255, 120, 0.05)'
+                    }])
+                },
+                markPoint: {
+                    data: [
+                        { 
+                            name: '峰值', 
+                            value: maxValue, 
+                            xAxis: 7, 
+                            yAxis: maxValue,
+                            symbol: 'pin',
+                            symbolSize: 50,
+                            itemStyle: {
+                                color: '#ff6b6b'
+                            },
+                            label: {
+                                color: '#fff',
+                                formatter: '{b}\n{c}万人',
+                                fontSize: 12
+                            }
+                        },
+                        { 
+                            name: '谷值', 
+                            value: minValue, 
+                            xAxis: 1, 
+                            yAxis: minValue,
+                            symbol: 'pin',
+                            symbolSize: 50,
+                            itemStyle: {
+                                color: '#4dabf7'
+                            },
+                            label: {
+                                color: '#fff',
+                                formatter: '{b}\n{c}万人',
+                                fontSize: 12
+                            }
+                        },
+                        { 
+                            name: '2024年', 
+                            value: 16.52, 
+                            xAxis: 11, 
+                            yAxis: 16.52,
+                            symbol: 'pin',
+                            symbolSize: 50,
+                            itemStyle: {
+                                color: '#ff9800'
+                            },
+                            label: {
+                                color: '#fff',
+                                formatter: '2024年\n{c}万人',
+                                fontSize: 12
+                            }
+                        }
+                    ]
+                },
+                markLine: {
+                    data: [
+                        { 
+                            name: '疫情开始', 
+                            xAxis: '2019年',
+                            lineStyle: {
+                                color: 'rgba(255, 150, 150, 0.6)',
+                                type: 'dashed'
+                            },
+                            label: {
+                                color: '#ff9e9e',
+                                position: 'middle'
+                            }
+                        },
+                        { 
+                            name: '经济调整期', 
+                            xAxis: '2023年',
+                            lineStyle: {
+                                color: 'rgba(255, 193, 7, 0.6)',
+                                type: 'dashed'
+                            },
+                            label: {
+                                color: '#ffd54f',
+                                position: 'middle'
+                            }
+                        }
+                    ]
+                }
+            }],
+            toolbox: {
+                feature: {
+                    saveAsImage: {
+                        title: '保存为图片',
+                        pixelRatio: 2
+                    },
+                    dataView: {
+                        title: '数据视图',
+                        readOnly: true,
+                        lang: ['数据视图', '关闭', '刷新'],
+                        optionToContent: function(opt) {
+                            const table = `<table style="width:100%;text-align:center"><tr><th>年份</th><th>迁入人口(万人)</th><th>同比变化(万人)</th><th>变化率</th></tr>`;
+                            let body = '';
+                            migrationData.forEach((val, idx) => {
+                                body += `<tr>
+                                    <td>${years[idx]}</td>
+                                    <td>${val}</td>
+                                    <td>${idx === 0 ? '-' : (changes[idx] > 0 ? '+' : '') + changes[idx]}</td>
+                                    <td>${idx === 0 ? '-' : changeRates[idx]}</td>
+                                </tr>`;
+                            });
+                            return table + body + '</table>';
+                        }
+                    },
+                    restore: {
+                        title: '重置'
+                    }
+                },
+                iconStyle: {
+                    borderColor: '#a8ff78'
+                },
+                itemSize: 16,
+                right: 20,
+                top: 10
+            }
+        };
+
+        // 应用配置
+        myChart.setOption(option);
+        
+        // 响应窗口大小变化
+        window.addEventListener('resize', function() {
+            myChart.resize();
+        });
+    </script>
+</body>
+</html>
