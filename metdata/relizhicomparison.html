@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>广州市各区GDP密度热力值对比</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #0f1b31 0%, #1a2b4d 100%);
+            color: #e6f7ff;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(16, 22, 46, 0.8);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 10, 40, 0.6);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(64, 158, 255, 0.2);
+        }
+        #chart {
+            width: 100%;
+            height: 600px;
+            margin-top: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .title {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #36cfc9, #1890ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 15px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        .legend-2015 {
+            background: linear-gradient(to right, #36cfc9, #1a5f9c);
+        }
+        .legend-2024 {
+            background: linear-gradient(to right, #ff7c43, #d93025);
+        }
+        @media (max-width: 768px) {
+            .title {
+                font-size: 1.8rem;
+            }
+            #chart {
+                height: 500px;
+            }
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            #chart {
+                height: 450px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">广州市各区GDP密度热力值对比</h1>
+            <p>2015年 vs 2024年 | 数据按2024年热力值由低到高排序</p>
+        </div>
+        
+        <div id="chart"></div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color legend-2015"></div>
+                <span>2015年GDP密度热力值</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color legend-2024"></div>
+                <span>2024年GDP密度热力值</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化ECharts实例
+        const chartDom = document.getElementById('chart');
+        const myChart = echarts.init(chartDom);
+        
+        // 原始数据
+        const districts = ['从化区', '增城区', '花都区', '南沙区', '白云区', '番禺区', '黄埔区', '荔湾区', '海珠区', '天河区', '越秀区'];
+        const heat2015 = [0.18, 0.58, 1.11, 1.45, 1.93, 3.03, 5.94, 17.19, 15.74, 35.70, 79.87];
+        const heat2024 = [0.22, 0.87, 1.92, 2.96, 3.97, 6.63, 8.96, 22.27, 33.28, 68.67, 112.73];
+        
+        // 保留两位小数
+        const heat2015Formatted = heat2015.map(value => parseFloat(value.toFixed(2)));
+        const heat2024Formatted = heat2024.map(value => parseFloat(value.toFixed(2)));
+        
+        // 计算增长率
+        const growthRates = heat2024Formatted.map((value, index) => {
+            return ((value - heat2015Formatted[index]) / heat2015Formatted[index] * 100).toFixed(1);
+        });
+        
+        // 设置图表配置项
+        const option = {
+            backgroundColor: 'transparent',
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: function(params) {
+                    const district = params[0].name;
+                    const index = districts.indexOf(district);
+                    
+                    return `
+                        <div style="font-weight:bold;margin-bottom:10px">${district}</div>
+                        <div>2015年热力值: <b>${heat2015Formatted[index]}</b></div>
+                        <div>2024年热力值: <b>${heat2024Formatted[index]}</b></div>
+                        <div>增长率: <b style="color:#${growthRates[index] > 0 ? '36cfc9' : 'ff6b6b'}">${growthRates[index]}%</b></div>
+                    `;
+                },
+                backgroundColor: 'rgba(10, 20, 40, 0.9)',
+                borderColor: '#36cfc9',
+                textStyle: {
+                    color: '#fff',
+                    fontSize: 14
+                },
+                padding: 15
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '8%',
+                top: '10%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: districts,
+                axisLine: {
+                    lineStyle: {
+                        color: '#36cfc9'
+                    }
+                },
+                axisLabel: {
+                    color: '#a0d2ff',
+                    fontSize: 12,
+                    interval: 0,
+                    rotate: 30
+                },
+                splitLine: {
+                    show: false
+                },
+                axisTick: {
+                    alignWithLabel: true
+                }
+            },
+            yAxis: {
+                type: 'value',
+                name: 'GDP密度热力值',
+                nameTextStyle: {
+                    color: '#36cfc9',
+                    fontSize: 14
+                },
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: '#36cfc9'
+                    }
+                },
+                axisLabel: {
+                    color: '#a0d2ff',
+                    fontSize: 12
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: 'rgba(100, 150, 255, 0.1)',
+                        type: 'dashed'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: '2015年GDP密度热力值',
+                    type: 'bar',
+                    data: heat2015Formatted,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#36cfc9' },
+                            { offset: 1, color: '#1a5f9c' }
+                        ]),
+                        borderRadius: [5, 5, 0, 0]
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: '{c}',
+                        fontSize: 11,
+                        color: '#36cfc9'
+                    },
+                    barWidth: '35%'
+                },
+                {
+                    name: '2024年GDP密度热力值',
+                    type: 'bar',
+                    data: heat2024Formatted,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#ff7c43' },
+                            { offset: 1, color: '#d93025' }
+                        ]),
+                        borderRadius: [5, 5, 0, 0]
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: '{c}',
+                        fontSize: 11,
+                        color: '#ff7c43'
+                    },
+                    barWidth: '35%'
+                }
+            ],
+            dataZoom: [
+                {
+                    type: 'inside',
+                    start: 0,
+                    end: 100
+                }
+            ]
+        };
+
+        // 应用配置
+        myChart.setOption(option);
+        
+        // 响应窗口大小变化
+        window.addEventListener('resize', function() {
+            myChart.resize();
+        });
+    </script>
+</body>
+</html>
