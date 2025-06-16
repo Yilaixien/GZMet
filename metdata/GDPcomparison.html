@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>广州市各区GDP对比分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e6f7ff;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #36cfc9, #1890ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            color: #a0d2ff;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        .chart-container {
+            background: rgba(20, 30, 50, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 20, 0.5);
+            backdrop-filter: blur(5px);
+            margin-bottom: 30px;
+            border: 1px solid rgba(64, 158, 255, 0.2);
+        }
+        #main {
+            width: 100%;
+            height: 600px;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            color: #a0d2ff;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            border-top: 1px solid rgba(64, 158, 255, 0.2);
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        .control-btn {
+            background: rgba(24, 144, 255, 0.3);
+            border: 1px solid rgba(64, 158, 255, 0.5);
+            color: #a0d2ff;
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        .control-btn:hover {
+            background: rgba(24, 144, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            #main {
+                height: 500px;
+            }
+            .controls {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>广州市各区GDP对比分析</h1>
+            <p class="subtitle">2005年 vs 2024年 | 数据单位：亿元</p>
+        </header>
+        
+        <div class="controls">
+            <div class="control-btn" onclick="sortByGDP2024()">按2024年GDP排序</div>
+            <div class="control-btn" onclick="sortByGrowth()">按增长率排序</div>
+            <div class="control-btn" onclick="sortByRankChange()">按排名变化排序</div>
+        </div>
+        
+        <div class="chart-container">
+            <div id="main"></div>
+        </div>
+        
+        <div class="footer">
+            <p>数据来源：广州市统计局 | 可视化分析 © 2024</p>
+        </div>
+    </div>
+
+    <script>
+        // 初始化ECharts实例
+        const chartDom = document.getElementById('main');
+        const myChart = echarts.init(chartDom);
+        
+        // 原始数据（按2024年GDP排序）
+        const districts = ['天河区', '黄埔区', '越秀区', '番禺区', '白云区', '海珠区', '南沙区', '花都区', '增城区', '荔湾区', '从化区'];
+        const gdp2005 = [527.85, 363.97, 892.36, 473.68, 891.29, 317.91, 132.91, 301.54, 269.68, 343.84, 92.11];
+        const gdp2024 = [6614.69, 4338.90, 3810.24, 3511.89, 3156.37, 3008.35, 2323.54, 1860.06, 1412.37, 1316.36, 441.66];
+        
+        // 计算增长率
+        const growthRates = gdp2024.map((gdp, index) => {
+            return ((gdp - gdp2005[index]) / gdp2005[index] * 100).toFixed(1);
+        });
+        
+        // 排名变化（2005年排名）
+        const rank2005 = [3, 5, 1, 4, 2, 7, 10, 8, 9, 6, 11];
+        const rankChanges = rank2005.map((rank, index) => {
+            return rank - (index + 1); // 2024年排名是index+1（因为districts按2024年排序）
+        });
+        
+        // 设置图表配置项
+        const option = {
+            backgroundColor: 'transparent',
+            title: {
+                text: '广州市各区GDP对比 (2005年 vs 2024年)',
+                left: 'center',
+                textStyle: {
+                    color: '#e6f7ff',
+                    fontSize: 22,
+                    fontWeight: 'normal'
+                },
+                subtext: '数据单位：亿元 | 按2024年GDP排序',
+                subtextStyle: {
+                    color: '#a0d2ff',
+                    fontSize: 14
+                }
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: function(params) {
+                    const district = params[0].name;
+                    const index = districts.indexOf(district);
+                    const rankChange = rankChanges[index];
+                    
+                    let rankText = '';
+                    if (rankChange > 0) {
+                        rankText = `<span style="color:#ff6b6b">下降${rankChange}名</span>`;
+                    } else if (rankChange < 0) {
+                        rankText = `<span style="color:#36cfc9">上升${-rankChange}名</span>`;
+                    } else {
+                        rankText = `<span style="color:#a0d2ff">排名不变</span>`;
+                    }
+                    
+                    return `
+                        <div style="font-weight:bold;margin-bottom:10px">${district}</div>
+                        <div>2005年GDP: <b>${gdp2005[index]}亿元</b> (排名第${rank2005[index]})</div>
+                        <div>2024年GDP: <b>${gdp2024[index]}亿元</b> (排名第${index+1})</div>
+                        <div>增长率: <b style="color:#${growthRates[index] > 500 ? 'ff6b6b' : '36cfc9'}">${growthRates[index]}%</b></div>
+                        <div>排名变化: ${rankText}</div>
+                    `;
+                },
+                backgroundColor: 'rgba(20, 40, 70, 0.9)',
+                borderColor: '#36cfc9',
+                textStyle: {
+                    color: '#fff',
+                    fontSize: 14
+                },
+                padding: 15
+            },
+            legend: {
+                data: ['2005年GDP', '2024年GDP'],
+                right: 20,
+                top: 50,
+                textStyle: {
+                    color: '#a0d2ff'
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '10%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: districts,
+                axisLine: {
+                    lineStyle: {
+                        color: '#36cfc9'
+                    }
+                },
+                axisLabel: {
+                    color: '#a0d2ff',
+                    fontSize: 12,
+                    interval: 0,
+                    rotate: 30
+                },
+                splitLine: {
+                    show: false
+                },
+                axisTick: {
+                    alignWithLabel: true
+                }
+            },
+            yAxis: {
+                type: 'value',
+                name: 'GDP (亿元)',
+                nameTextStyle: {
+                    color: '#36cfc9',
+                    fontSize: 14
+                },
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: '#36cfc9'
+                    }
+                },
+                axisLabel: {
+                    color: '#a0d2ff',
+                    fontSize: 12
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: 'rgba(100, 150, 255, 0.1)',
+                        type: 'dashed'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: '2005年GDP',
+                    type: 'bar',
+                    data: gdp2005,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#36cfc9' },
+                            { offset: 1, color: '#1a5f9c' }
+                        ]),
+                        borderRadius: [5, 5, 0, 0]
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: '{c}',
+                        fontSize: 11,
+                        color: '#36cfc9'
+                    },
+                    barWidth: '35%'
+                },
+                {
+                    name: '2024年GDP',
+                    type: 'bar',
+                    data: gdp2024,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#1890ff' },
+                            { offset: 1, color: '#0c4b8e' }
+                        ]),
+                        borderRadius: [5, 5, 0, 0]
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: '{c}',
+                        fontSize: 11,
+                        color: '#1890ff'
+                    },
+                    barWidth: '35%'
+                }
+            ],
+            toolbox: {
+                feature: {
+                    saveAsImage: {
+                        title: '保存为图片',
+                        pixelRatio: 2
+                    },
+                    dataView: {
+                        title: '数据视图',
+                        readOnly: true,
+                        lang: ['数据视图', '关闭', '刷新'],
+                        buttonColor: '#36cfc9'
+                    }
+                },
+                iconStyle: {
+                    borderColor: '#36cfc9'
+                },
+                itemSize: 16,
+                right: 20,
+                top: 10
+            }
+        };
+
+        // 应用配置
+        myChart.setOption(option);
+        
+        // 响应窗口大小变化
+        window.addEventListener('resize', function() {
+            myChart.resize();
+        });
+        
+        // 排序函数
+        function sortByGDP2024() {
+            // 创建包含所有数据的数组
+            const combined = districts.map((district, index) => ({
+                district,
+                gdp2005: gdp2005[index],
+                gdp2024: gdp2024[index],
+                growth: parseFloat(growthRates[index]),
+                rankChange: rankChanges[index]
+            }));
+            
+            // 按2024年GDP降序排序
+            combined.sort((a, b) => b.gdp2024 - a.gdp2024);
+            
+            // 更新图表
+            updateChart(
+                combined.map(item => item.district),
+                combined.map(item => item.gdp2005),
+                combined.map(item => item.gdp2024)
+            );
+        }
+        
+        function sortByGrowth() {
+            // 创建包含所有数据的数组
+            const combined = districts.map((district, index) => ({
+                district,
+                gdp2005: gdp2005[index],
+                gdp2024: gdp2024[index],
+                growth: parseFloat(growthRates[index]),
+                rankChange: rankChanges[index]
+            }));
+            
+            // 按增长率降序排序
+            combined.sort((a, b) => b.growth - a.growth);
+            
+            // 更新图表
+            updateChart(
+                combined.map(item => item.district),
+                combined.map(item => item.gdp2005),
+                combined.map(item => item.gdp2024)
+            );
+        }
+        
+        function sortByRankChange() {
+            // 创建包含所有数据的数组
+            const combined = districts.map((district, index) => ({
+                district,
+                gdp2005: gdp2005[index],
+                gdp2024: gdp2024[index],
+                growth: parseFloat(growthRates[index]),
+                rankChange: rankChanges[index]
+            }));
+            
+            // 按排名变化降序排序（上升最多的排前面）
+            combined.sort((a, b) => a.rankChange - b.rankChange);
+            
+            // 更新图表
+            updateChart(
+                combined.map(item => item.district),
+                combined.map(item => item.gdp2005),
+                combined.map(item => item.gdp2024)
+            );
+        }
+        
+        function updateChart(districtList, gdp2005List, gdp2024List) {
+            myChart.setOption({
+                xAxis: {
+                    data: districtList
+                },
+                series: [
+                    {
+                        data: gdp2005List
+                    },
+                    {
+                        data: gdp2024List
+                    }
+                ]
+            });
+        }
+    </script>
+</body>
+</html>
