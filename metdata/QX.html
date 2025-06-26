@@ -227,69 +227,70 @@
   <div class="container">
     <header>
       <div class="header-gradient"></div>
-      <h1><i class="fas fa-city"></i> 迁入广州来源地迁徙图</h1>
-      <p class="subtitle">本可视化图表展示了各城市人口迁入广州的比例分布及迁徙路径，数据来源于最新人口迁移统计</p>
+      <!-- 删除最上面的标题 -->
+      <!-- <h1><i class="fas fa-city"></i> 迁入广州来源地迁徙图</h1> -->
+      <!-- 删除副标题 -->
+      <!-- <p class="subtitle">本可视化图表展示了各城市人口迁入广州的比例分布及迁徙路径，数据来源于最新人口迁移统计</p> -->
     </header>
     
-    <div class="legend">
-      <div class="legend-item">
-        <div class="legend-color" style="background: #FF7979;"></div>
-        <div class="legend-text">迁徙路径</div>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color" style="background: #FFEA00;"></div>
-        <div class="legend-text">迁徙动画</div>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color" style="background: #1a73e8;"></div>
-        <div class="legend-text">来源城市</div>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color" style="background: #e84393;"></div>
-        <div class="legend-text">广州</div>
-      </div>
-    </div>
-    
-    <div class="chart-container">
+    <!-- 图例左下角，数据来源右下角 -->
+    <div class="chart-container" style="position: relative;">
       <div id="migration-chart"></div>
-    </div>
-    
-    <div class="info-panel">
-      <div class="panel">
-        <h2><i class="fas fa-chart-pie"></i> 迁入广州来源地比例</h2>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>来源城市</th>
-              <th>比例</th>
-              <th>排名</th>
-            </tr>
-          </thead>
-          <tbody id="data-table-body">
-            <!-- 数据将通过JS填充 -->
-          </tbody>
-        </table>
-      </div>
-      
-      <div class="panel">
-        <h2><i class="fas fa-chart-line"></i> 数据分析</h2>
-        <div class="analytics" style="margin-top: 20px; line-height: 1.8;">
-          <p>• <strong>佛山市</strong>占比最高(29.42%)，体现广佛同城化的显著效果</p>
-          <p>• 珠三角城市占来源地<strong>70%以上</strong>，反映区域一体化趋势</p>
-          <p>• 非珠三角城市中，<strong>衡阳市</strong>和<strong>长沙市</strong>比例最高</p>
-          <p>• 前5名城市占比超过<strong>58%</strong>，来源地相对集中</p>
-          <p>• 省外城市仅占约<strong>3%</strong>，广州对省内人口吸引力更强</p>
+      <div class="legend" style="
+        position: absolute;
+        left: 30px;
+        bottom: 30px;
+        top: auto;
+        right: auto;
+        background: rgba(255,255,255,0.92);
+        border-radius: 16px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        padding: 12px 24px;
+        z-index: 10;
+        flex-direction: row;
+        gap: 28px;
+        min-width: 260px;
+      ">
+        <div class="legend-item">
+          <div class="legend-color" style="background: #FF7979;"></div>
+          <div class="legend-text">迁徙路径</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #FFEA00;"></div>
+          <div class="legend-text">迁徙动画</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #1a73e8;"></div>
+          <div class="legend-text">来源城市</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #e84393;"></div>
+          <div class="legend-text">广州</div>
         </div>
       </div>
+      <div style="
+        position: absolute;
+        right: 30px;
+        bottom: 30px;
+        background: rgba(255,255,255,0.92);
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        padding: 10px 22px;
+        font-size: 1rem;
+        color: #718096;
+        z-index: 10;
+      ">
+        数据来源：人口迁移统计报告
+      </div>
     </div>
     
-    <div class="footer">
-      <p>数据来源：人口迁移统计报告 | 可视化设计：天涯路儿 | 2023年</p>
-    </div>
+    <!-- <div class="footer">
+      <p>数据来源：人口迁移统计报告 | 可视化设计：伊莱希恩 | 2025</p>
+    </div> -->
   </div>
 
   <script>
-    // 城市坐标数据
+    // 城市坐标数据（更新版）
     const cityCoords = {
       '广州市': [113.264385, 23.129112],
       '佛山市': [113.121416, 23.021548],
@@ -311,44 +312,34 @@
       '衡阳市': [112.571997, 26.89323],
       '揭阳市': [116.372831, 23.549993],
       '长沙市': [112.938884, 28.22808],
-      '梅州市': [116.122238, 24.288615]
+      '梅州市': [116.122238, 24.288615],
+      '赣州市': [114.935909, 25.845296],
+      '汕尾市': [115.375279, 22.78725]
     };
 
-    // 迁徙数据
+    // 迁徙数据（更新为Excel提供的数据）
     const migrationData = [
-      { fromName: "佛山市", toName: "广州市", value: 0.2942 },
-      { fromName: "东莞市", toName: "广州市", value: 0.1198 },
-      { fromName: "深圳市", toName: "广州市", value: 0.0738 },
-      { fromName: "清远市", toName: "广州市", value: 0.0539 },
-      { fromName: "惠州市", toName: "广州市", value: 0.0406 },
-      { fromName: "中山市", toName: "广州市", value: 0.0369 },
-      { fromName: "肇庆市", toName: "广州市", value: 0.0249 },
-      { fromName: "江门市", toName: "广州市", value: 0.0234 },
-      { fromName: "珠海市", toName: "广州市", value: 0.0182 },
-      { fromName: "湛江市", toName: "广州市", value: 0.0136 },
-      { fromName: "茂名市", toName: "广州市", value: 0.0135 },
-      { fromName: "韶关市", toName: "广州市", value: 0.0128 },
-      { fromName: "云浮市", toName: "广州市", value: 0.0091 },
-      { fromName: "汕头市", toName: "广州市", value: 0.009 },
-      { fromName: "阳江市", toName: "广州市", value: 0.0088 },
-      { fromName: "河源市", toName: "广州市", value: 0.0085 },
-      { fromName: "衡阳市", toName: "广州市", value: 0.0084 },
-      { fromName: "揭阳市", toName: "广州市", value: 0.0084 },
-      { fromName: "长沙市", toName: "广州市", value: 0.0083 },
-      { fromName: "梅州市", toName: "广州市", value: 0.0071 }
+      { fromName: "佛山市", toName: "广州市", value: 0.4577 },
+      { fromName: "东莞市", toName: "广州市", value: 0.1789 },
+      { fromName: "深圳市", toName: "广州市", value: 0.0717 },
+      { fromName: "中山市", toName: "广州市", value: 0.0556 },
+      { fromName: "清远市", toName: "广州市", value: 0.0563 },
+      { fromName: "惠州市", toName: "广州市", value: 0.0461 },
+      { fromName: "江门市", toName: "广州市", value: 0.0327 },
+      { fromName: "肇庆市", toName: "广州市", value: 0.0304 },
+      { fromName: "珠海市", toName: "广州市", value: 0.0164 },
+      { fromName: "韶关市", toName: "广州市", value: 0.0089 },
+      { fromName: "云浮市", toName: "广州市", value: 0.0082 },
+      { fromName: "河源市", toName: "广州市", value: 0.0071 },
+      { fromName: "阳江市", toName: "广州市", value: 0.0057 },
+      { fromName: "茂名市", toName: "广州市", value: 0.0047 },
+      { fromName: "赣州市", toName: "广州市", value: 0.0005 },
+      { fromName: "湛江市", toName: "广州市", value: 0.0033 },
+      { fromName: "汕头市", toName: "广州市", value: 0.0024 },
+      { fromName: "揭阳市", toName: "广州市", value: 0.0033 },
+      { fromName: "汕尾市", toName: "广州市", value: 0.0034 },
+      { fromName: "长沙市", toName: "广州市", value: 0.0013 }
     ];
-
-    // 填充数据表格
-    const tableBody = document.getElementById('data-table-body');
-    migrationData.sort((a, b) => b.value - a.value).forEach((item, index) => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${item.fromName}</td>
-        <td>${(item.value * 100).toFixed(2)}%</td>
-        <td>${index + 1}</td>
-      `;
-      tableBody.appendChild(row);
-    });
 
     // 初始化图表
     const chart = echarts.init(document.getElementById('migration-chart'));
@@ -357,7 +348,7 @@
     const option = {
       backgroundColor: 'transparent',
       title: {
-        text: '迁入广州来源地分布',
+        text: '迁入广州来源地迁徙图', // 替换标题
         subtext: '数据来源：人口迁移统计报告',
         left: 'center',
         textStyle: {
@@ -385,8 +376,11 @@
                     <div>比例: <span style="color:#e84393;font-weight:bold">${(params.data.value * 100).toFixed(2)}%</span></div>
                     <div>距离: <span style="color:#1a73e8">${Math.round(calcDistance(cityCoords[params.data.fromName], cityCoords[params.data.toName]))}公里</span></div>`;
           } else if (params.componentType === 'series' && params.seriesType === 'scatter') {
-            return `<div style="font-size:16px;font-weight:bold;color:#1a73e8">${params.data.name}</div>
-                    <div>迁入比例: <span style="color:#e84393;font-weight:bold">${(params.data.value * 100).toFixed(2)}%</span></div>`;
+            // 只显示来源城市的比例，不显示广州市的比例
+            if (params.data.ratio !== undefined && params.data.name !== '广州市') {
+              return `<div style="font-size:16px;font-weight:bold;color:#1a73e8">${params.data.name}</div>
+                      <div>迁入比例: <span style="color:#e84393;font-weight:bold">${(params.data.ratio * 100).toFixed(2)}%</span></div>`;
+            }
           }
           return params.name;
         }
@@ -454,13 +448,14 @@
           },
           zlevel: 2
         },
-        // 来源城市点
+        // 来源城市点（修复：添加ratio属性存储比例值）
         {
           type: 'scatter',
           coordinateSystem: 'geo',
           data: migrationData.map(item => ({
             name: item.fromName,
             value: cityCoords[item.fromName],
+            ratio: item.value, // 添加ratio属性存储比例值
             symbolSize: Math.max(10, item.value * 350),
             itemStyle: {
               color: '#1a73e8',
@@ -546,7 +541,7 @@
     }
 
     // 使用中国地图
-    fetch('https://gzmet.ylxe.top/metdata/china.json')
+    fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full_city.json')
       .then(response => response.json())
       .then(chinaJson => {
         echarts.registerMap('china', chinaJson);
