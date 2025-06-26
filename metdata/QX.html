@@ -546,7 +546,7 @@
     }
 
     // 使用中国地图
-    fetch('./metdata/china.json')
+    fetch('https://gzmet.ylxe.top/metdata/china.json')
       .then(response => response.json())
       .then(chinaJson => {
         echarts.registerMap('china', chinaJson);
