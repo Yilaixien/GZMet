@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>迁入广州来源地迁徙图</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    }
+    body {
+      background: #f8f9fa;
+      color: #333;
+      min-height: 100vh;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      padding: 30px 0;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .header-gradient {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(79, 192, 255, 0.2) 0%, transparent 70%);
+      z-index: 0;
+      opacity: 0.3;
+    }
+    h1 {
+      font-size: 2.8rem;
+      margin-bottom: 15px;
+      background: linear-gradient(90deg, #1a73e8, #6c5ce7, #e84393);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 1px;
+      position: relative;
+      z-index: 1;
+    }
+    .subtitle {
+      color: #5f6368;
+      font-size: 1.25rem;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.7;
+      font-weight: 400;
+      position: relative;
+      z-index: 1;
+    }
+    .chart-container {
+      background: #fff;
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      margin-bottom: 35px;
+      height: 700px;
+      border: 1px solid #e0e0e0;
+      position: relative;
+      overflow: hidden;
+    }
+    .chart-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #1a73e8, #6c5ce7, #e84393);
+      border-radius: 4px 4px 0 0;
+    }
+    #migration-chart {
+      width: 100%;
+      height: 100%;
+    }
+    .info-panel {
+      display: flex;
+      gap: 25px;
+      margin-bottom: 35px;
+      flex-wrap: wrap;
+    }
+    .panel {
+      background: #fff;
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      flex: 1;
+      min-width: 300px;
+      border: 1px solid #e0e0e0;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .panel:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+    }
+    .panel h2 {
+      color: #1a73e8;
+      margin-bottom: 20px;
+      font-size: 1.6rem;
+      display: flex;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    .panel h2 i {
+      margin-right: 12px;
+      font-size: 1.4rem;
+      color: #6c5ce7;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 5px;
+    }
+    .data-table th {
+      background: #f5f7fa;
+      padding: 14px 18px;
+      text-align: left;
+      font-weight: 600;
+      color: #2d3748;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .data-table td {
+      padding: 14px 18px;
+      border-bottom: 1px solid #edf2f7;
+      color: #4a5568;
+    }
+    .data-table tr:last-child td {
+      border-bottom: none;
+    }
+    .data-table tr:hover {
+      background: #f8f9fa;
+    }
+    .footer {
+      text-align: center;
+      padding: 25px;
+      color: #718096;
+      font-size: 1rem;
+      border-top: 1px solid #e2e8f0;
+      margin-top: 20px;
+      border-radius: 0 0 16px 16px;
+      background: #fff;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
+    }
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 35px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      padding: 8px 15px;
+      border-radius: 30px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    .legend-color {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    .legend-text {
+      font-size: 1rem;
+      color: #4a5568;
+      font-weight: 500;
+    }
+    .analytics p {
+      padding: 10px 0;
+      border-bottom: 1px dashed #e2e8f0;
+      margin-bottom: 8px;
+      color: #4a5568;
+    }
+    .analytics p:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    .analytics strong {
+      color: #1a73e8;
+    }
+    @media (max-width: 768px) {
+      .chart-container {
+        height: 500px;
+        padding: 15px;
+      }
+      h1 {
+        font-size: 2.2rem;
+      }
+      .subtitle {
+        font-size: 1.05rem;
+      }
+      .panel {
+        padding: 20px;
+      }
+      .legend {
+        gap: 15px;
+      }
+    }
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+      .legend-item {
+        padding: 6px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-gradient"></div>
+      <h1><i class="fas fa-city"></i> 迁入广州来源地迁徙图</h1>
+      <p class="subtitle">本可视化图表展示了各城市人口迁入广州的比例分布及迁徙路径，数据来源于最新人口迁移统计</p>
+    </header>
+    
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color" style="background: #FF7979;"></div>
+        <div class="legend-text">迁徙路径</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #FFEA00;"></div>
+        <div class="legend-text">迁徙动画</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #1a73e8;"></div>
+        <div class="legend-text">来源城市</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #e84393;"></div>
+        <div class="legend-text">广州</div>
+      </div>
+    </div>
+    
+    <div class="chart-container">
+      <div id="migration-chart"></div>
+    </div>
+    
+    <div class="info-panel">
+      <div class="panel">
+        <h2><i class="fas fa-chart-pie"></i> 迁入广州来源地比例</h2>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>来源城市</th>
+              <th>比例</th>
+              <th>排名</th>
+            </tr>
+          </thead>
+          <tbody id="data-table-body">
+            <!-- 数据将通过JS填充 -->
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="panel">
+        <h2><i class="fas fa-chart-line"></i> 数据分析</h2>
+        <div class="analytics" style="margin-top: 20px; line-height: 1.8;">
+          <p>• <strong>佛山市</strong>占比最高(29.42%)，体现广佛同城化的显著效果</p>
+          <p>• 珠三角城市占来源地<strong>70%以上</strong>，反映区域一体化趋势</p>
+          <p>• 非珠三角城市中，<strong>衡阳市</strong>和<strong>长沙市</strong>比例最高</p>
+          <p>• 前5名城市占比超过<strong>58%</strong>，来源地相对集中</p>
+          <p>• 省外城市仅占约<strong>3%</strong>，广州对省内人口吸引力更强</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p>数据来源：人口迁移统计报告 | 可视化设计：天涯路儿 | 2023年</p>
+    </div>
+  </div>
+
+  <script>
+    // 城市坐标数据
+    const cityCoords = {
+      '广州市': [113.264385, 23.129112],
+      '佛山市': [113.121416, 23.021548],
+      '东莞市': [113.751765, 23.020536],
+      '深圳市': [114.057868, 22.543099],
+      '清远市': [113.056031, 23.681764],
+      '惠州市': [114.416196, 23.111847],
+      '中山市': [113.39277, 22.517645],
+      '肇庆市': [112.465091, 23.047191],
+      '江门市': [113.081901, 22.578738],
+      '珠海市': [113.576726, 22.270715],
+      '湛江市': [110.358941, 21.270707],
+      '茂名市': [110.925456, 21.662999],
+      '韶关市': [113.597522, 24.810403],
+      '云浮市': [112.044491, 22.915094],
+      '汕头市': [116.681972, 23.354091],
+      '阳江市': [111.982232, 21.857958],
+      '河源市': [114.700447, 23.743686],
+      '衡阳市': [112.571997, 26.89323],
+      '揭阳市': [116.372831, 23.549993],
+      '长沙市': [112.938884, 28.22808],
+      '梅州市': [116.122238, 24.288615]
+    };
+
+    // 迁徙数据
+    const migrationData = [
+      { fromName: "佛山市", toName: "广州市", value: 0.2942 },
+      { fromName: "东莞市", toName: "广州市", value: 0.1198 },
+      { fromName: "深圳市", toName: "广州市", value: 0.0738 },
+      { fromName: "清远市", toName: "广州市", value: 0.0539 },
+      { fromName: "惠州市", toName: "广州市", value: 0.0406 },
+      { fromName: "中山市", toName: "广州市", value: 0.0369 },
+      { fromName: "肇庆市", toName: "广州市", value: 0.0249 },
+      { fromName: "江门市", toName: "广州市", value: 0.0234 },
+      { fromName: "珠海市", toName: "广州市", value: 0.0182 },
+      { fromName: "湛江市", toName: "广州市", value: 0.0136 },
+      { fromName: "茂名市", toName: "广州市", value: 0.0135 },
+      { fromName: "韶关市", toName: "广州市", value: 0.0128 },
+      { fromName: "云浮市", toName: "广州市", value: 0.0091 },
+      { fromName: "汕头市", toName: "广州市", value: 0.009 },
+      { fromName: "阳江市", toName: "广州市", value: 0.0088 },
+      { fromName: "河源市", toName: "广州市", value: 0.0085 },
+      { fromName: "衡阳市", toName: "广州市", value: 0.0084 },
+      { fromName: "揭阳市", toName: "广州市", value: 0.0084 },
+      { fromName: "长沙市", toName: "广州市", value: 0.0083 },
+      { fromName: "梅州市", toName: "广州市", value: 0.0071 }
+    ];
+
+    // 填充数据表格
+    const tableBody = document.getElementById('data-table-body');
+    migrationData.sort((a, b) => b.value - a.value).forEach((item, index) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${item.fromName}</td>
+        <td>${(item.value * 100).toFixed(2)}%</td>
+        <td>${index + 1}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+
+    // 初始化图表
+    const chart = echarts.init(document.getElementById('migration-chart'));
+    
+    // 配置项
+    const option = {
+      backgroundColor: 'transparent',
+      title: {
+        text: '迁入广州来源地分布',
+        subtext: '数据来源：人口迁移统计报告',
+        left: 'center',
+        textStyle: {
+          color: '#2d3748',
+          fontSize: 24,
+          fontWeight: 'bold'
+        },
+        subtextStyle: {
+          color: '#718096',
+          fontSize: 16
+        }
+      },
+      tooltip: {
+        trigger: 'item',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        borderColor: '#e2e8f0',
+        borderWidth: 1,
+        textStyle: {
+          color: '#2d3748',
+          fontSize: 14
+        },
+        formatter: function(params) {
+          if (params.componentType === 'series' && params.seriesType === 'lines') {
+            return `<div style="font-size:16px;font-weight:bold;margin-bottom:5px;color:#1a73e8">${params.data.fromName} → ${params.data.toName}</div>
+                    <div>比例: <span style="color:#e84393;font-weight:bold">${(params.data.value * 100).toFixed(2)}%</span></div>
+                    <div>距离: <span style="color:#1a73e8">${Math.round(calcDistance(cityCoords[params.data.fromName], cityCoords[params.data.toName]))}公里</span></div>`;
+          } else if (params.componentType === 'series' && params.seriesType === 'scatter') {
+            return `<div style="font-size:16px;font-weight:bold;color:#1a73e8">${params.data.name}</div>
+                    <div>迁入比例: <span style="color:#e84393;font-weight:bold">${(params.data.value * 100).toFixed(2)}%</span></div>`;
+          }
+          return params.name;
+        }
+      },
+      geo: {
+        map: 'china',
+        roam: true,
+        zoom: 5.5,
+        center: [113.5, 23.5],
+        label: {
+          show: false,
+          emphasis: {
+            show: false
+          }
+        },
+        itemStyle: {
+          areaColor: '#f5f0e6', /* 米色背景 */
+          borderColor: '#d1c7b7',
+          borderWidth: 1
+        },
+        emphasis: {
+          itemStyle: {
+            areaColor: '#e8e0d1'
+          },
+          label: {
+            show: false
+          }
+        }
+      },
+      series: [
+        // 迁徙线
+        {
+          type: 'lines',
+          coordinateSystem: 'geo',
+          data: migrationData.map(item => ({
+            coords: [cityCoords[item.fromName], cityCoords[item.toName]],
+            fromName: item.fromName,
+            toName: item.toName,
+            value: item.value
+          })),
+          effect: {
+            show: true,
+            period: 4,
+            trailLength: 0.1,
+            symbol: 'arrow',
+            symbolSize: 8,
+            color: '#FFEA00'
+          },
+          lineStyle: {
+            color: {
+              type: 'linear',
+              x: 0,
+              y: 0,
+              x2: 1,
+              y2: 0,
+              colorStops: [{
+                offset: 0, color: '#FF7979'
+              }, {
+                offset: 1, color: '#6c5ce7'
+              }]
+            },
+            width: 2,
+            opacity: 0.8,
+            curveness: 0.2
+          },
+          zlevel: 2
+        },
+        // 来源城市点
+        {
+          type: 'scatter',
+          coordinateSystem: 'geo',
+          data: migrationData.map(item => ({
+            name: item.fromName,
+            value: cityCoords[item.fromName],
+            symbolSize: Math.max(10, item.value * 350),
+            itemStyle: {
+              color: '#1a73e8',
+              shadowColor: 'rgba(26, 115, 232, 0.3)',
+              shadowBlur: 8
+            }
+          })),
+          symbol: 'circle',
+          zlevel: 3,
+          // 添加城市名称标签
+          label: {
+            show: true,
+            formatter: '{b}',
+            position: 'bottom',
+            color: '#2d3748',
+            fontSize: 12,
+            fontWeight: 'bold',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            padding: [4, 8],
+            borderRadius: 4,
+            borderWidth: 1,
+            borderColor: '#e2e8f0',
+            shadowBlur: 3,
+            shadowColor: 'rgba(0, 0, 0, 0.1)',
+            distance: 10
+          },
+          emphasis: {
+            label: {
+              show: true,
+              color: '#1a73e8',
+              backgroundColor: 'rgba(255, 255, 255, 0.95)'
+            }
+          }
+        },
+        // 广州点（特殊标记）
+        {
+          type: 'scatter',
+          coordinateSystem: 'geo',
+          data: [{
+            name: '广州市',
+            value: cityCoords['广州市'],
+            symbolSize: 25,
+            itemStyle: {
+              color: '#e84393',
+              shadowColor: 'rgba(232, 67, 147, 0.3)',
+              shadowBlur: 12
+            }
+          }],
+          symbol: 'pin',
+          symbolOffset: [0, -15],
+          zlevel: 4,
+          label: {
+            show: true,
+            formatter: '{b}',
+            position: 'top',
+            color: '#e84393',
+            fontSize: 16,
+            fontWeight: 'bold',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            padding: [5, 10],
+            borderRadius: 4,
+            borderWidth: 1,
+            borderColor: '#fad7e7',
+            shadowBlur: 3,
+            shadowColor: 'rgba(0, 0, 0, 0.1)',
+            distance: 20
+          }
+        }
+      ]
+    };
+
+    // 计算两点间距离（简化版）
+    function calcDistance(coord1, coord2) {
+      const R = 6371; // 地球半径(km)
+      const dLat = (coord2[1] - coord1[1]) * Math.PI / 180;
+      const dLon = (coord2[0] - coord1[0]) * Math.PI / 180;
+      const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(coord1[1] * Math.PI / 180) * Math.cos(coord2[1] * Math.PI / 180) * 
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+      return R * c;
+    }
+
+    // 使用中国地图
+    fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full_city.json')
+      .then(response => response.json())
+      .then(chinaJson => {
+        echarts.registerMap('china', chinaJson);
+        chart.setOption(option);
+      })
+      .catch(error => {
+        console.error('地图数据加载失败:', error);
+        // 即使没有地图数据，仍然显示迁徙线
+        chart.setOption(option);
+      });
+
+    // 响应式调整
+    window.addEventListener('resize', function() {
+      chart.resize();
+    });
+  </script>
+</body>
+</html>
