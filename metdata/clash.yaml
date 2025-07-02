@@ -2,10 +2,10 @@ proxies:
   - name: ylxe-vless
     type: vless
     server: vless.ylxe.top
-    port: 443
+    port: 80
     uuid: 8e83d830-3fbe-4870-9d0c-dae64f2ff938
     network: ws
-    tls: true
+    tls: false
     ws-opts:
       path: /vlessws
     udp: true
