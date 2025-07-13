@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>3D 模型展示 - CarTctest</title>
-  <!-- 引入 model-viewer 组件 -->
   <script type="module" src="https://tgzmet.ylxe.top/metdata/mtrmodel/model-viewer.min.js"></script>
-<!--  <script nomodule src="https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js"></script> -->
   <style>
     body { margin: 0; padding: 0; font-family: sans-serif; }
     model-viewer {
@@ -35,6 +33,28 @@
     #retryBtn:hover {
       background-color: #0056b3;
     }
+
+    /* 横屏按钮样式 */
+    #landscapeBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 50%;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      display: none;
+      z-index: 1000;
+      cursor: pointer;
+    }
+    #landscapeBtn svg {
+      width: 28px;
+      height: 28px;
+    }
   </style>
 </head>
 <body>
@@ -58,76 +78,102 @@
     <button id="retryBtn">🔄 手动重新加载模型</button>
   </div>
 
-<script>
-  const viewer = document.getElementById('viewer');
-  const errorMsg = document.getElementById('errorMsg');
-  const retryBtn = document.getElementById('retryBtn');
+  <!-- 横屏按钮 -->
+  <div id="landscapeBtn" title="进入横屏模式">
+    <svg t="1752424944622" class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+      <path d="M853.333333 437.333333a74.666667 74.666667 0 0 1 74.56 70.570667L928 512v256a74.666667 74.666667 0 0 1-70.570667 74.56L853.333333 842.666667h-170.666666a32 32 0 0 1-3.072-63.850667L682.666667 778.666667h170.666666a10.666667 10.666667 0 0 0 10.496-8.746667L864 768V512a10.666667 10.666667 0 0 0-8.746667-10.496L853.333333 501.333333h-170.666666a32 32 0 0 1-3.072-63.850666L682.666667 437.333333h170.666666zM512 181.333333H213.333333A96 96 0 0 0 117.333333 277.333333v469.333334a96 96 0 0 0 96 96h298.666667a96 96 0 0 0 96-96V277.333333A96 96 0 0 0 512 181.333333z m-298.666667 64h298.666667a32 32 0 0 1 32 32v469.333334a32 32 0 0 1-32 32H213.333333A32 32 0 0 1 181.333333 746.666667V277.333333a32 32 0 0 1 32-32zM857.6 330.666667a187.733333 187.733333 0 0 0-179.2-142.933334h-29.866667v40.533334h29.866667a147.2 147.2 0 0 1 138.666667 104.533333h-51.2a4.266667 4.266667 0 0 0-2.133334 6.4l61.866667 59.733333a17.066667 17.066667 0 0 0 17.066667 0l61.866666-59.733333c1.621333-1.514667 2.346667-3.072 1.578667-5.397333-0.789333-2.304-3.242667-3.136-5.845333-3.136h-42.666667z" fill="#000000"></path>
+      <path d="M326.4 667.733333h85.333333a21.333333 21.333333 0 0 1 0 42.666667h-85.333333a21.333333 21.333333 0 0 1 0-42.666667z" fill="#000000"></path>
+    </svg>
+  </div>
 
-  const mainSrc = "https://tgzmet.ylxe.top/metdata/mtrmodel/GZMTRL1-Cars.glb";
-  const backupSrc = "https://gzmet.ylxe.top/metdata/mtrmodel/GZMTRL1-Cars.glb";
-  let usingBackup = false;
-  let retryCount = 0;
-  const maxRetries = 3;
-  const retryDelay = 2000;
-  const STUCK_TIMEOUT = 60000;
+  <script>
+    const viewer = document.getElementById('viewer');
+    const errorMsg = document.getElementById('errorMsg');
+    const retryBtn = document.getElementById('retryBtn');
 
-  let stuckTimer, lastProgress = 0;
+    const mainSrc = "https://tgzmet.ylxe.top/metdata/mtrmodel/GZMTRL1-Cars.glb";
+    const backupSrc = "https://gzmet.ylxe.top/metdata/mtrmodel/GZMTRL1-Cars.glb";
+    let usingBackup = false;
+    let retryCount = 0;
+    const maxRetries = 3;
+    const STUCK_TIMEOUT = 60000;
 
-  function startStuckTimer() {
-    clearTimeout(stuckTimer);
-    lastProgress = 0;
-    stuckTimer = setTimeout(() => {
-      console.warn('检测加载卡住（无进度达 60 秒）');
-      viewer.dispatchEvent(new Event('error'));
-    }, STUCK_TIMEOUT);
-  }
+    let stuckTimer, lastProgress = 0;
+    let firstLoadSucceeded = false;
 
-  viewer.addEventListener('progress', ev => {
-    const p = ev.detail.totalProgress ?? 0;
-    if (p > lastProgress) {
-      lastProgress = p;
+    function startStuckTimer() {
+      if (firstLoadSucceeded) return;
       clearTimeout(stuckTimer);
+      lastProgress = 0;
+      stuckTimer = setTimeout(() => {
+        console.warn("检测加载卡住（无进度达 60 秒）");
+        viewer.dispatchEvent(new Event("error"));
+      }, STUCK_TIMEOUT);
+    }
+
+    viewer.addEventListener("progress", ev => {
+      if (firstLoadSucceeded) return;
+      const p = ev.detail.totalProgress ?? 0;
+      if (p > lastProgress) {
+        lastProgress = p;
+        clearTimeout(stuckTimer);
+        startStuckTimer();
+      }
+    });
+
+    viewer.addEventListener("load", () => {
+      clearTimeout(stuckTimer);
+      errorMsg.style.display = "none";
+      firstLoadSucceeded = true;
+    });
+
+    function reloadModel(src) {
       startStuckTimer();
+      errorMsg.textContent = "⏳ 正在重新加载模型...";
+      errorMsg.style.display = "block";
+      viewer.setAttribute("src", "");
+      setTimeout(() => viewer.setAttribute("src", src + "?t=" + Date.now()), 100);
     }
-  });
 
-  viewer.addEventListener('load', () => {
-    clearTimeout(stuckTimer);
-    errorMsg.style.display = 'none';
-  });
+    viewer.addEventListener("error", () => {
+      retryCount++;
+      if (retryCount <= maxRetries) {
+        reloadModel(usingBackup ? backupSrc : mainSrc);
+      } else if (!usingBackup) {
+        usingBackup = true;
+        retryCount = 0;
+        reloadModel(backupSrc);
+      } else {
+        errorMsg.textContent = "❌ 模型加载失败，请点击按钮重试";
+        retryBtn.style.display = "inline-block";
+        clearTimeout(stuckTimer);
+      }
+    });
 
-  function reloadModel(src) {
-    startStuckTimer();
-    errorMsg.textContent = '⏳ 正在重新加载模型...';
-    errorMsg.style.display = 'block';
-    viewer.setAttribute('src', '');
-    setTimeout(() => viewer.setAttribute('src', src + '?t=' + Date.now()), 100);
-  }
-
-  viewer.addEventListener('error', () => {
-    retryCount++;
-    if (retryCount <= maxRetries) {
-      reloadModel(usingBackup ? backupSrc : mainSrc);
-    } else if (!usingBackup) {
-      usingBackup = true;
+    retryBtn.addEventListener("click", () => {
+      retryBtn.style.display = "none";
       retryCount = 0;
-      reloadModel(backupSrc);
-    } else {
-      errorMsg.textContent = '❌ 模型加载失败，请点击按钮重试';
-      retryBtn.style.display = 'inline-block';
-      clearTimeout(stuckTimer);
+      reloadModel(usingBackup ? backupSrc : mainSrc);
+    });
+
+    startStuckTimer();
+
+    // 横屏按钮功能
+    const landscapeBtn = document.getElementById('landscapeBtn');
+    landscapeBtn.addEventListener('click', () => {
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(() => {
+          alert('⚠️ 当前设备不支持自动横屏，请手动旋转设备');
+        });
+      } else {
+        alert('⚠️ 当前浏览器不支持横屏 API');
+      }
+    });
+
+    // 移动端显示横屏按钮
+    if (/iPhone|Android|Mobile|iPad/i.test(navigator.userAgent)) {
+      landscapeBtn.style.display = 'flex';
     }
-  });
-
-  retryBtn.addEventListener('click', () => {
-    retryBtn.style.display = 'none';
-    retryCount = 0;
-    reloadModel(usingBackup ? backupSrc : mainSrc);
-  });
-
-  // 网页加载时启动首次检测
-  startStuckTimer();
-</script>
-
+  </script>
 </body>
 </html>
