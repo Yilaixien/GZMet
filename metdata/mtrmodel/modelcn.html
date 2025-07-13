@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>3D 模型展示 - CarTctest</title>
+  <!-- 引入 model-viewer 组件 -->
+  <script type="module" src="https://tgzmet.ylxe.top/metdata/mtrmodel/model-viewer.min.js"></script>
+<!--  <script nomodule src="https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js"></script> -->
+  <style>
+    body { margin: 0; padding: 0; font-family: sans-serif; }
+    model-viewer {
+      width: 100%;
+      height: 600px;
+      display: block;
+      background-color: #f0f0f0;
+    }
+    .notice { text-align: center; margin: 16px 0; }
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center;">广州地铁1号线三维展示</h1>
+
+  <model-viewer
+    src="https://tgzmet.ylxe.top/metdata/mtrmodel/GZMTRL1-Cars.glb"
+    alt="CarTctest 三维汽车模型"
+    camera-controls
+    auto-rotate
+    ar
+    ar-modes="webxr scene-viewer quick-look"
+    loading="eager"
+    background-color="#ffffff">
+  </model-viewer>
+
+  <p class="notice">拖拽或缩放以互动模型；兼容 AR（如果设备支持）。</p>
+
+  <script>
+    document.querySelector('model-viewer').addEventListener('error', e => {
+      console.error('模型加载失败：', e);
+    });
+  </script>
+</body>
+</html>
