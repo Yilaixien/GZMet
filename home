@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>技术博客 | 开发者小明的个人空间</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 头部样式 */
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .blog-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* 导航菜单 */
+        nav {
+            background-color: #34495e;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* 文章列表 */
+        .article-list {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .article-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .article-meta {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+
+        /* 响应式设计 */
+        @media (min-width: 768px) {
+            .main-content {
+                display: grid;
+                grid-template-columns: 3fr 1fr;
+                gap: 2rem;
+            }
+        }
+
+        /* 代码高亮样式 */
+        pre {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="blog-title">小明的技术博客</h1>
+            <p>专注于Web开发与人工智能技术分享</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="#home">首页</a></li>
+                <li><a href="#archives">归档</a></li>
+                <li><a href="#categories">分类</a></li>
+                <li><a href="#about">关于我</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="main-content">
+            <main>
+                <div class="article-list">
+                    <article class="article-card">
+                        <h2><a href="#">使用Vue3实现响应式布局</a></h2>
+                        <div class="article-meta">发布于 2023-08-20 | 分类：前端开发</div>
+                        <p>本文详细介绍了Vue3的组合式API在响应式布局中的应用，结合CSS Grid和Flexbox的现代布局方案...</p>
+                        <a href="#" style="color: #3498db">阅读全文 →</a>
+                    </article>
+
+                    <article class="article-card">
+                        <h2><a href="#">Python异步编程实战</a></h2>
+                        <div class="article-meta">发布于 2023-08-18 | 分类：后端开发</div>
+                        <p>深入探讨asyncio库的使用场景和最佳实践，通过实际案例演示高并发服务开发...</p>
+                        <a href="#" style="color: #3498db">阅读全文 →</a>
+                    </article>
+                </div>
+            </main>
+
+            <aside class="sidebar">
+                <section>
+                    <h3>文章分类</h3>
+                    <ul>
+                        <li><a href="#">前端开发 (15)</a></li>
+                        <li><a href="#">后端架构 (12)</a></li>
+                        <li><a href="#">人工智能 (8)</a></li>
+                        <li><a href="#">技术随笔 (5)</a></li>
+                    </ul>
+                </section>
+
+                <section style="margin-top: 2rem;">
+                    <h3>标签云</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        <span style="background: #e0f7fa; padding: 0.3rem 0.6rem; border-radius: 4px;">JavaScript</span>
+                        <span style="background: #e8f5e9; padding: 0.3rem 0.6rem; border-radius: 4px;">Python</span>
+                        <span style="background: #fce4ec; padding: 0.3rem 0.6rem; border-radius: 4px;">机器学习</span>
+                    </div>
+                </section>
+            </aside>
+        </div>
+    </div>
+
+    <footer style="background: #2c3e50; color: white; padding: 2rem 0; margin-top: 3rem;">
+        <div class="container" style="text-align: center;">
+            <p>© 2023 小明的技术博客 | Powered by 独立开发者</p>
+        </div>
+    </footer>
+</body>
+</html>
