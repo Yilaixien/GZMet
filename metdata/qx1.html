@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>迁入广州来源地迁徙图</title>
+  <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/extension/bmap.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #f7f4ef;
+      font-family: "Microsoft YaHei", sans-serif;
+    }
+    #chart {
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="chart"></div>
+  <script>
+    var chart = echarts.init(document.getElementById('chart'));
+    
+    fetch('https://cdn.jsdelivr.net/npm/echarts@5.4.3/map/json/china.json')
+      .then(res => res.json())
+      .then(geoJson => {
+        echarts.registerMap('china', geoJson);
+
+        const migrationData = [
+          { name: '北京', value: [116.4074, 39.9042] },
+          { name: '上海', value: [121.4737, 31.2304] },
+          { name: '深圳', value: [114.0579, 22.5431] },
+          { name: '佛山', value: [113.12244, 23.0095] },
+          { name: '东莞', value: [113.7518, 23.0207] }
+        ];
+
+        const guangzhou = { name: '广州', value: [113.2644, 23.1291] };
+
+        const linesData = migrationData.map(item => ({
+          coords: [item.value, guangzhou.value]
+        }));
+
+        const option = {
+          backgroundColor: '#f7f4ef',
+          title: {
+            text: '迁入广州来源地迁徙图',
+            left: 'center',
+            top: '2%',
+            textStyle: {
+              color: '#2d3748',
+              fontSize: 24,
+              fontWeight: 'bold'
+            }
+          },
+          geo: {
+            map: 'china',
+            roam: true,
+            zoom: 1.2,
+            label: {
+              show: false
+            },
+            itemStyle: {
+              areaColor: '#f5f0e6',
+              borderColor: '#d1c7b7',
+              borderWidth: 1
+            },
+            emphasis: {
+              itemStyle: {}
+            }
+          },
+          series: [
+            {
+              type: 'lines',
+              coordinateSystem: 'geo',
+              zlevel: 2,
+              effect: {
+                show: true,
+                period: 6,
+                trailLength: 0.4,
+                color: '#1a73e8',
+                symbolSize: 6
+              },
+              lineStyle: {
+                color: '#1a73e8',
+                width: 2,
+                curveness: 0.2
+              },
+              data: linesData
+            },
+            {
+              type: 'scatter',
+              coordinateSystem: 'geo',
+              zlevel: 2,
+              symbolSize: 10,
+              label: {
+                show: true,
+                formatter: '{b}',
+                position: 'bottom',
+                color: '#2d3748',
+                fontSize: 12,
+                fontWeight: 'bold',
+                backgroundColor: 'rgba(255,255,255,0.8)',
+                padding: [4, 8],
+                borderRadius: 4,
+                borderWidth: 1,
+                borderColor: '#e2e8f0',
+                distance: 10
+              },
+              itemStyle: {
+                color: '#1a73e8',
+                opacity: 1
+              },
+              data: migrationData.map(city => {
+                const isFoshanOrDongguan = city.name === '佛山' || city.name === '东莞';
+                return {
+                  ...city,
+                  itemStyle: {
+                    color: '#1a73e8',
+                    opacity: isFoshanOrDongguan ? 0.5 : 1
+                  }
+                };
+              })
+            },
+            {
+              type: 'scatter',
+              coordinateSystem: 'geo',
+              zlevel: 3,
+              symbol: 'pin',
+              symbolSize: [40, 40],
+              label: {
+                show: true,
+                formatter: '{b}',
+                color: '#fff',
+                fontWeight: 'bold',
+                fontSize: 12
+              },
+              itemStyle: {
+                color: '#e84393'
+              },
+              data: [guangzhou]
+            }
+          ]
+        };
+
+        chart.setOption(option);
+        window.addEventListener('resize', () => chart.resize());
+      });
+  </script>
+</body>
+</html>
