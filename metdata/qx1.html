@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>迁入广州来源地迁徙图</title>
-  <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+  <script src="https://gzmet.ylxe.top/metdata/543echarts.min.js"></script>
   <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/extension/bmap.min.js"></script>
   <style>
     html, body {
@@ -23,7 +23,7 @@
   <script>
     var chart = echarts.init(document.getElementById('chart'));
     
-    fetch('https://cdn.jsdelivr.net/npm/echarts@5.4.3/map/json/china.json')
+    fetch('https://gzmet.ylxe.top/metdata/china.json')
       .then(res => res.json())
       .then(geoJson => {
         echarts.registerMap('china', geoJson);
