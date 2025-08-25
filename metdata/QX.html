@@ -338,7 +338,7 @@
         return;
       }
 
-      fetch("https://gzmet.ylxe.top/metdata/china.json")
+      fetch("json/china.json")
         .then((res) => res.json())
         .then((chinaJson) => {
           echarts.registerMap("china", chinaJson);
@@ -580,4 +580,5 @@
   </script>
 </body>
 </html>
+
 
